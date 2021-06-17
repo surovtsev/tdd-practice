@@ -1,17 +1,18 @@
 package com.stringconcat.tdd
 
+import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
 
-open class Money(
-    val amount: Int,
-    val currency: Currency
-) {
+open class Money(val amount: Int, val currency: Currency) {
 
-    private val rate: Int = 2
+    init {
+        if (amount < 0) throw IllegalArgumentException("Amount must be positive")
+    }
 
     companion object {
         fun dollar(amount: Int) = Money(amount, Currency.USD)
         fun franc(amount: Int) = Money(amount, Currency.CHF)
+        fun euro(amount: Int) = Money(amount, Currency.EUR)
     }
 
     operator fun plus(other: Money): Wallet {
@@ -51,7 +52,27 @@ open class Money(
         }
     }
 
+    fun asEuro(dollarsForOneEuro: Double, francsForOneEuro: Double): Money {
+        return when (currency) {
+            Currency.USD -> {
+                asCurrency(Currency.EUR, dollarsForOneEuro)
+            }
+            Currency.CHF -> {
+                asCurrency(Currency.EUR, francsForOneEuro)
+            }
+            else -> {
+                this
+            }
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = amount
+        result = 31 * result + currency.hashCode()
+        return result
+    }
+
     enum class Currency {
-        USD, CHF
+        USD, CHF, EUR
     }
 }
