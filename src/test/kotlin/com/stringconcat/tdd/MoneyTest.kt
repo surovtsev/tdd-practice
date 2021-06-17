@@ -3,12 +3,23 @@ package com.stringconcat.tdd
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 internal class MoneyTest {
 
     @Test
     fun `5 dollars is 5 dollars`() {
         Money.dollar(5) shouldBe Money.dollar(5)
+    }
+
+    @Test
+    fun `5 euro is 5 euro`() {
+        Money.euro(5) shouldBe Money.euro(5)
+    }
+
+    @Test
+    fun `5 euro is NOT 2 euro`() {
+        Money.euro(5) shouldNotBe Money.euro(2)
     }
 
     @Test
@@ -66,4 +77,48 @@ internal class MoneyTest {
         Money.franc(2) + Money.dollar(4) shouldBe Wallet(Money.franc(2), Money.dollar(4) )
     }
 
+    @Test
+    fun `2 franc is 1 dollar if rate 2 to 1`() {
+        Money.franc(2).asDollar(2.0) shouldBe Money.dollar(1)
+    }
+
+    @Test
+    fun `1 dollar is 1 dollar if any rate`() {
+        Money.dollar(1).asDollar(200.0) shouldBe Money.dollar(1)
+    }
+
+    @Test
+    fun `1 franc is 1 franc if any rate`() {
+        Money.franc(1).asFranc(200.0) shouldBe Money.franc(1)
+    }
+
+    @Test
+    fun `1 dollar is 2 franc if rate 1 to 2`() {
+        Money.dollar(1).asFranc(0.5) shouldBe Money.franc(2)
+    }
+
+    @Test
+    fun `-1 dollar is impossible to create`() {
+        var exeptionRised = false;
+        try {
+            Money.dollar(-1)
+        } catch (e: IllegalArgumentException) {
+            exeptionRised = true
+        }
+        exeptionRised shouldBe true
+    }
+
+    @Test
+    fun `more than integer amount impossible to create`() {
+        val e = assertThrows<IllegalArgumentException>() {
+            Money.dollar(Int.MAX_VALUE + 1)
+        }
+    }
+
+    @Test
+    fun `max int dollars + 10 int dollars impossible operation`() {
+        val e = assertThrows<IllegalArgumentException>() {
+            Money.dollar(Int.MAX_VALUE) + Money.dollar(10)
+        }
+    }
 }

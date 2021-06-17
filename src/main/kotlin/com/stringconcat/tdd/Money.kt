@@ -1,15 +1,18 @@
 package com.stringconcat.tdd
 
-open class Money(
-    val amount: Int,
-    val currency: Currency
-) {
+import java.lang.IllegalArgumentException
+import kotlin.math.roundToInt
 
-    private val rate: Int = 2
+open class Money(val amount: Int, val currency: Currency) {
+
+    init {
+        if (amount < 0) throw IllegalArgumentException("Amount must be positive")
+    }
 
     companion object {
         fun dollar(amount: Int) = Money(amount, Currency.USD)
         fun franc(amount: Int) = Money(amount, Currency.CHF)
+        fun euro(amount: Int) = Money(amount, Currency.EUR)
     }
 
     operator fun plus(other: Money): Wallet {
@@ -33,7 +36,43 @@ open class Money(
         return "Money(amount=$amount, currency=$currency)"
     }
 
+    fun asDollar(rateForOneDollar: Double): Money {
+        return asCurrency(Currency.USD, rateForOneDollar)
+    }
+
+    fun asFranc(rateForOneFranc: Double): Money {
+        return asCurrency(Currency.CHF, rateForOneFranc)
+    }
+
+    fun asCurrency(otherCurrency: Currency, rateForOneOtherCurrency: Double): Money {
+        return if (currency == otherCurrency) {
+            this
+        } else {
+            Money((amount / rateForOneOtherCurrency).roundToInt(), otherCurrency)
+        }
+    }
+
+    fun asEuro(dollarsForOneEuro: Double, francsForOneEuro: Double): Money {
+        return when (currency) {
+            Currency.USD -> {
+                asCurrency(Currency.EUR, dollarsForOneEuro)
+            }
+            Currency.CHF -> {
+                asCurrency(Currency.EUR, francsForOneEuro)
+            }
+            else -> {
+                this
+            }
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = amount
+        result = 31 * result + currency.hashCode()
+        return result
+    }
+
     enum class Currency {
-        USD, CHF
+        USD, CHF, EUR
     }
 }
