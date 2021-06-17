@@ -66,4 +66,24 @@ internal class MoneyTest {
         Money.franc(2) + Money.dollar(4) shouldBe Wallet(Money.franc(2), Money.dollar(4) )
     }
 
+    @Test
+    fun `2 franc is 1 dollar if rate 2 to 1`() {
+        Money.franc(2).asDollar(2.0) shouldBe Money.dollar(1)
+    }
+
+    @Test
+    fun `1 dollar is 1 dollar if any rate`() {
+        Money.dollar(1).asDollar(200.0) shouldBe Money.dollar(1)
+    }
+
+    @Test
+    fun `1 franc is 1 franc if any rate`() {
+        Money.franc(1).asFranc(200.0) shouldBe Money.franc(1)
+    }
+
+    @Test
+    fun `1 dollar is 2 franc if rate 1 to 2`() {
+        Money.dollar(1).asFranc(0.5) shouldBe Money.franc(2)
+    }
+
 }

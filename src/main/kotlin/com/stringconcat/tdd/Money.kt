@@ -1,5 +1,7 @@
 package com.stringconcat.tdd
 
+import kotlin.math.roundToInt
+
 open class Money(
     val amount: Int,
     val currency: Currency
@@ -31,6 +33,22 @@ open class Money(
 
     override fun toString(): String {
         return "Money(amount=$amount, currency=$currency)"
+    }
+
+    fun asDollar(rateForOneDollar: Double): Money {
+        return asCurrency(Currency.USD, rateForOneDollar)
+    }
+
+    fun asFranc(rateForOneFranc: Double): Money {
+        return asCurrency(Currency.CHF, rateForOneFranc)
+    }
+
+    fun asCurrency(otherCurrency: Currency, rateForOneOtherCurrency: Double): Money {
+        return if (currency == otherCurrency) {
+            this
+        } else {
+            Money((amount / rateForOneOtherCurrency).roundToInt(), otherCurrency)
+        }
     }
 
     enum class Currency {

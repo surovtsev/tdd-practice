@@ -1,21 +1,32 @@
 package com.stringconcat.tdd
 
-import kotlin.math.roundToInt
-
-class Wallet(vararg val money: Money) {
-
+class Wallet(vararg val moneys: Money) {
 
     override fun equals(other: Any?): Boolean {
         if (other !is Wallet) return false
-        return this.money.contentEquals(other.money)
+        return this.moneys.contentEquals(other.moneys)
     }
 
     override fun toString(): String {
-        return "Wallet(money=${money.contentToString()})"
+        return "Wallet(money=${moneys.contentToString()})"
     }
 
-    fun asDollars(rate: Double): Money {
-        return Money.dollar((money.first().amount / rate).roundToInt())
+    fun asDollars(rateForOneDollar: Double): Money {
+        return asCurrency(Money.Currency.USD, rateForOneDollar)
+    }
+
+    fun asFrancs(rateForOneFranc: Double): Money {
+        return asCurrency(Money.Currency.CHF, rateForOneFranc)
+    }
+
+    private fun asCurrency(otherCurrency: Money.Currency, rateForCurrency: Double): Money {
+        val amount = moneys.map { money -> money.asCurrency(otherCurrency, rateForCurrency) }
+            .sumBy { c-> c.amount }
+
+        return Money(
+            amount,
+            otherCurrency
+        )
     }
 
 }
